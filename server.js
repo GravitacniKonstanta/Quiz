@@ -16,6 +16,7 @@ let questions = [];
 let questionTimer = null;
 const QUESTION_TIME_LIMIT = 10; // seconds
 let currentGameMode = 'math'; // 'math' or 'movies'
+let optionCountSetting = 4; // 2 or 4 options per question
 
 const MOVIE_QUESTIONS = [
     { prompt: "Tlapková _____", correct: "patrola" },
@@ -26,8 +27,6 @@ const MOVIE_QUESTIONS = [
     { prompt: "Medvídek _____", correct: "Peddington" },
     { prompt: "Maxipes _____", correct: "Fík" },
     { prompt: "Jája a _____", correct: "Pája" },
-    { prompt: "Mašinka _____", correct: "Tomáš" },
-    { prompt: "Bob a _____", correct: "Bobek" },
     { prompt: "Francimor a _____", correct: "Edudant" }
 ];
 
@@ -43,7 +42,8 @@ io.on('connection', (socket) => {
             hasAnswered: false,
             roundPointsEarned: 0
         };
-        socket.emit('update-gamemode', currentGameMode);
+        // Send current settings to the newly connected player
+        socket.emit('update-settings', { mode: currentGameMode, optionCount: optionCountSetting });
         io.emit('update-players', Object.values(players));
     });
 
@@ -58,7 +58,14 @@ io.on('connection', (socket) => {
     socket.on('toggle-gamemode', () => {
         if (gameState === 'waiting') {
             currentGameMode = currentGameMode === 'math' ? 'movies' : 'math';
-            io.emit('update-gamemode', currentGameMode);
+            io.emit('update-settings', { mode: currentGameMode, optionCount: optionCountSetting });
+        }
+    });
+
+    socket.on('toggle-option-count', () => {
+        if (gameState === 'waiting') {
+            optionCountSetting = optionCountSetting === 4 ? 2 : 4;
+            io.emit('update-settings', { mode: currentGameMode, optionCount: optionCountSetting });
         }
     });
 
@@ -132,7 +139,7 @@ function generateQuestions() {
             let correct = op === '+' ? num1 + num2 : num1 - num2;
             
             let options = new Set([correct]);
-            while (options.size < 4) {
+            while (options.size < optionCountSetting) {
                 let offset = Math.floor(Math.random() * 41) - 20;
                 let wrong = correct + offset;
                 if (wrong >= 0 && wrong !== correct) {
@@ -157,7 +164,7 @@ function generateQuestions() {
 
             let options = new Set([correct]);
             for (let ans of otherAnswers) {
-                if (options.size < 4) {
+                if (options.size < optionCountSetting) {
                     options.add(ans);
                 }
             }
@@ -249,9 +256,6 @@ function endGame() {
         targetList: playerList
     });
 
-    // Calculate how long the reveal takes: 
-    // (number of players * 1.2s animation duration + 0.6s pause per player + 0.8s initial delay)
-    // Plus 3 extra seconds after completion before returning everyone to the lobby.
     let totalRevealDuration = (playerList.length * 1800) + 800 + 3000;
 
     setTimeout(() => {

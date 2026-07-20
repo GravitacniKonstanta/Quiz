@@ -26,6 +26,8 @@ const MOVIE_QUESTIONS = [
     { prompt: "Medvídek _____", correct: "Peddington" },
     { prompt: "Maxipes _____", correct: "Fík" },
     { prompt: "Jája a _____", correct: "Pája" },
+    { prompt: "Mašinka _____", correct: "Tomáš" },
+    { prompt: "Bob a _____", correct: "Bobek" },
     { prompt: "Francimor a _____", correct: "Edudant" }
 ];
 

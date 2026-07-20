@@ -29,17 +29,17 @@ const MOVIE_QUESTIONS = [
     { prompt: "Jája a _____", correct: "Pája" },
     { prompt: "Francimor a _____", correct: "Edudant" },
     { prompt: "Bob a  _____", correct: "Bobek" },
-    { prompt: "Princezna _____ (Sofie)", correct: "Sofie" },
-    { prompt: "Na _____ (Vlásku)", correct: "Vlásku" },
+    { prompt: "Princezna _____", correct: "Sofie" },
+    { prompt: "Na _____", correct: "Vlásku" },
     { prompt: "Princezna _____ první", correct: "Koloběžka" },
-    { prompt: "Harry _____ (Potter)", correct: "Potter" },
-    { prompt: "Rychlá _____ (Rota)", correct: "Rota" },
-    { prompt: "Želvy _____ (Ninja)", correct: "Ninja" },
-    { prompt: "Rychlé _____ (Šípy)", correct: "Šípy" },
-    { prompt: "Kosí _____ (Bratři)", correct: "Bratři" },
-    { prompt: "Pat a _____ (Mat)", correct: "Mat" },
-    { prompt: "Káťa a _____ (Škubánek)", correct: "Škubánek" },
-    { prompt: "Včelí _____ (Medvídci)", correct: "Medvídci" }
+    { prompt: "Harry _____", correct: "Potter" },
+    { prompt: "Rychlá _____", correct: "Rota" },
+    { prompt: "Želvy _____", correct: "Ninja" },
+    { prompt: "Rychlé _____", correct: "Šípy" },
+    { prompt: "Kosí _____", correct: "Bratři" },
+    { prompt: "Pat a _____", correct: "Mat" },
+    { prompt: "Káťa a _____", correct: "Škubánek" },
+    { prompt: "Včelí _____", correct: "Medvídci" }
 ];
 
 io.on('connection', (socket) => {

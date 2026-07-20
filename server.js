@@ -30,7 +30,9 @@ const MOVIE_QUESTIONS = [
     { prompt: "Francimor a _____", correct: "Edudant" },
     { prompt: "Bob a  _____", correct: "Bobek" },
     { prompt: "Princezna _____ (Sofie)", correct: "Sofie" },
-    { prompt: "Na _____ (Vlásku)", correct: "Vlásku" },
+    { prompt: "Na _____", correct: "Vlásku" },
+    { prompt: "Harry _____", correct: "Potter" },
+    { prompt: "Rychlé _____", correct: "Šípy" },
     { prompt: "Princezna _____ první", correct: "Koloběžka" }
 ];
 

@@ -15,7 +15,7 @@ const TOTAL_ROUNDS = 5;
 let questions = [];
 let questionTimer = null;
 const QUESTION_TIME_LIMIT = 10; // seconds
-let currentGameMode = 'math'; // 'math' or 'movies'
+let currentGameMode = 'math'; // 'math', 'easy-math', or 'movies'
 let optionCountSetting = 4; // 2 or 4 options per question
 
 const MOVIE_QUESTIONS = [
@@ -31,8 +31,6 @@ const MOVIE_QUESTIONS = [
     { prompt: "Bob a  _____", correct: "Bobek" },
     { prompt: "Princezna _____ (Sofie)", correct: "Sofie" },
     { prompt: "Na _____", correct: "Vlásku" },
-    { prompt: "Harry _____", correct: "Potter" },
-    { prompt: "Rychlé _____", correct: "Šípy" },
     { prompt: "Princezna _____ první", correct: "Koloběžka" }
 ];
 
@@ -62,7 +60,13 @@ io.on('connection', (socket) => {
 
     socket.on('toggle-gamemode', () => {
         if (gameState === 'waiting') {
-            currentGameMode = currentGameMode === 'math' ? 'movies' : 'math';
+            if (currentGameMode === 'math') {
+                currentGameMode = 'easy-math';
+            } else if (currentGameMode === 'easy-math') {
+                currentGameMode = 'movies';
+            } else {
+                currentGameMode = 'math';
+            }
             io.emit('update-settings', { mode: currentGameMode, optionCount: optionCountSetting });
         }
     });
@@ -146,6 +150,35 @@ function generateQuestions() {
             let options = new Set([correct]);
             while (options.size < optionCountSetting) {
                 let offset = Math.floor(Math.random() * 41) - 20;
+                let wrong = correct + offset;
+                if (wrong >= 0 && wrong !== correct) {
+                    options.add(wrong);
+                }
+            }
+
+            questions.push({
+                prompt: `${num1} ${op} ${num2}`,
+                correct: correct,
+                options: Array.from(options).sort(() => Math.random() - 0.5)
+            });
+        }
+    } else if (currentGameMode === 'easy-math') {
+        for (let i = 0; i < TOTAL_ROUNDS; i++) {
+            let num1 = Math.floor(Math.random() * 11); // 0 to 10
+            let num2 = Math.floor(Math.random() * 11); // 0 to 10
+            let op = Math.random() < 0.5 ? '+' : '-';
+
+            if (op === '-' && num1 < num2) {
+                let temp = num1;
+                num1 = num2;
+                num2 = temp;
+            }
+
+            let correct = op === '+' ? num1 + num2 : num1 - num2;
+            
+            let options = new Set([correct]);
+            while (options.size < optionCountSetting) {
+                let offset = Math.floor(Math.random() * 11) - 5; // +- 5
                 let wrong = correct + offset;
                 if (wrong >= 0 && wrong !== correct) {
                     options.add(wrong);

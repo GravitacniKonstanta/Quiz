@@ -208,7 +208,9 @@
 
         socket.on('update-settings', (settings) => {
             if (settings.mode === 'math') {
-                gamemodeDisplay.textContent = 'Matematika (+ / -)';
+                gamemodeDisplay.textContent = 'Matematika (1 - 99)';
+            } else if (settings.mode === 'easy-math') {
+                gamemodeDisplay.textContent = 'Lehká matematika (0 - 10)';
             } else {
                 gamemodeDisplay.textContent = 'Filmy a seriály';
             }

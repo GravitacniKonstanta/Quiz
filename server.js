@@ -17,7 +17,6 @@ let questionTimer = null;
 const QUESTION_TIME_LIMIT = 10; // seconds
 let currentGameMode = 'math'; // 'math' or 'movies'
 
-// Movie & Series Question Database
 const MOVIE_QUESTIONS = [
     { prompt: "Tlapková _____", correct: "patrola" },
     { prompt: "Kouzelná _____", correct: "školka" },
@@ -42,7 +41,6 @@ io.on('connection', (socket) => {
             hasAnswered: false,
             roundPointsEarned: 0
         };
-        // Send initial settings state to newly joined player too
         socket.emit('update-gamemode', currentGameMode);
         io.emit('update-players', Object.values(players));
     });
@@ -147,19 +145,15 @@ function generateQuestions() {
             });
         }
     } else {
-        // Movies & Series Mode
-        // Shuffle movie pool and pick 5 (or pool size if less than 5)
         let shuffledPool = [...MOVIE_QUESTIONS].sort(() => Math.random() - 0.5);
         let selectedPool = shuffledPool.slice(0, TOTAL_ROUNDS);
 
         selectedPool.forEach(item => {
             let correct = item.correct;
-            // Gather all other correct answers from the list to use as realistic wrong choices
             let otherAnswers = MOVIE_QUESTIONS.map(q => q.correct).filter(ans => ans !== correct);
             otherAnswers.sort(() => Math.random() - 0.5);
 
             let options = new Set([correct]);
-            // Pick up to 3 random wrong options from the list
             for (let ans of otherAnswers) {
                 if (options.size < 4) {
                     options.add(ans);
@@ -252,6 +246,16 @@ function endGame() {
         initialList: initialRevealList,
         targetList: playerList
     });
+
+    // Calculate how long the reveal takes: 
+    // (number of players * 1.2s animation duration + 0.6s pause per player + 0.8s initial delay)
+    // Plus 3 extra seconds after completion before returning everyone to the lobby.
+    let totalRevealDuration = (playerList.length * 1800) + 800 + 3000;
+
+    setTimeout(() => {
+        resetGame();
+        io.emit('return-to-lobby', Object.values(players));
+    }, totalRevealDuration);
 }
 
 function resetGame() {
@@ -261,9 +265,11 @@ function resetGame() {
         p.ready = false;
         p.score = 0;
         p.roundPointsEarned = 0;
+        p.hasAnswered = false;
     });
 }
 
-server.listen(3000, () => {
-    console.log('Server running on http://localhost:3000');
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });

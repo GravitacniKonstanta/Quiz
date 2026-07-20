@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <title>Multiplayer Kvíz</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            margin-top: 60px; 
+            background: #f4f4f9; 
+        }
+        .screen { display: none; }
+        .active { display: block; }
+
+        input[type="text"] {
+            padding: 14px 20px;
+            font-size: 20px;
+            width: 320px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            outline: none;
+        }
+        input[type="text"]:focus {
+            border-color: #4caf50;
+        }
+        button { 
+            padding: 14px 28px; 
+            font-size: 18px; 
+            font-weight: bold;
+            cursor: pointer; 
+            margin: 8px; 
+            border-radius: 8px;
+            border: none;
+            background-color: #4caf50;
+            color: white;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .option-btn { 
+            display: block; 
+            width: 320px; 
+            margin: 14px auto; 
+            font-size: 22px; 
+            padding: 16px;
+        }
+        
+        h2 { font-size: 32px; }
+        h3 { font-size: 24px; }
+        p { font-size: 18px; }
+        ul { list-style-type: none; padding: 0; }
+        li { font-size: 18px; margin: 8px 0; }
+
+        #results-list {
+            position: relative;
+            width: 480px;
+            margin: 30px auto;
+            text-align: left;
+        }
+        .score-card {
+            position: absolute; 
+            top: 0;
+            left: 0;
+            width: 100%;
+            box-sizing: border-box;
+            
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 18px 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: transform 0.6s ease, background-color 0.3s ease;
+            font-size: 20px;
+        }
+        .score-card.highlight {
+            background-color: #fff9c4;
+        }
+        .gained-points {
+            color: #2e7d32;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            margin-right: 12px;
+        }
+        .gained-points.show {
+            opacity: 1;
+        }
+        
+        #timer-bar-container {
+            width: 450px;
+            height: 16px;
+            background: #ddd;
+            margin: 20px auto;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        #timer-bar {
+            width: 100%;
+            height: 100%;
+            background: #4caf50;
+            transition: width 1s linear;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Name Screen -->
+    <div id="name-screen" class="screen active">
+        <h2>Zadejte své jméno</h2>
+        <input type="text" id="name-input" placeholder="Vaše jméno" autocomplete="off">
+        <br><br>
+        <button id="join-btn">Připojit se ke hře</button>
+    </div>
+
+    <!-- Lobby Screen -->
+    <div id="lobby-screen" class="screen">
+        <h2>Čekárna</h2>
+        <p>Herní režim: <strong id="gamemode-display" style="color: #2e7d32;">Matematika (+ / -)</strong></p>
+        <button id="mode-toggle-btn" style="background-color: #ff9800;">Přepnout režim</button>
+        <br><br>
+        <p>Připojení hráči:</p>
+        <ul id="player-list"></ul>
+        <br>
+        <button id="ready-btn">Připraven</button>
+    </div>
+
+    <!-- Countdown Screen -->
+    <div id="countdown-screen" class="screen">
+        <h1 id="countdown-number" style="font-size: 120px; margin-top: 100px; color: #333;">3</h1>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="screen">
+        <h3 id="round-indicator"></h3>
+        <div id="timer-bar-container">
+            <div id="timer-bar"></div>
+        </div>
+        <h1 id="question-prompt" style="font-size: 50px; margin: 30px 0;"></h1>
+        <div id="options-container"></div>
+        <p id="waiting-msg" style="color: #666; font-style: italic; display: none; margin-top: 20px;">Odpověď odeslána! Čekání na ostatní hráče...</p>
+    </div>
+
+    <!-- Results Screen -->
+    <div id="results-screen" class="screen">
+        <h2>Konec hry! Odhalení skóre</h2>
+        <div id="results-list"></div>
+        <div style="margin-top: 50px;">
+            <button id="play-again-btn" style="display:none;" onclick="location.reload()">Hrát znovu</button>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        const nameScreen = document.getElementById('name-screen');
+        const lobbyScreen = document.getElementById('lobby-screen');
+        const countdownScreen = document.getElementById('countdown-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const resultsScreen = document.getElementById('results-screen');
+
+        const nameInput = document.getElementById('name-input');
+        const joinBtn = document.getElementById('join-btn');
+        const playerList = document.getElementById('player-list');
+        const readyBtn = document.getElementById('ready-btn');
+        const modeToggleBtn = document.getElementById('mode-toggle-btn');
+        const gamemodeDisplay = document.getElementById('gamemode-display');
+        const countdownNumber = document.getElementById('countdown-number');
+        const roundIndicator = document.getElementById('round-indicator');
+        const questionPrompt = document.getElementById('question-prompt');
+        const optionsContainer = document.getElementById('options-container');
+        const waitingMsg = document.getElementById('waiting-msg');
+        const resultsList = document.getElementById('results-list');
+        const playAgainBtn = document.getElementById('play-again-btn');
+        const timerBar = document.getElementById('timer-bar');
+
+        let questionStartTime = 0;
+
+        function showScreen(screen) {
+            [nameScreen, lobbyScreen, countdownScreen, gameScreen, resultsScreen].forEach(s => s.classList.remove('active'));
+            screen.classList.add('active');
+        }
+
+        joinBtn.addEventListener('click', () => {
+            const name = nameInput.value.trim();
+            if (name) {
+                socket.emit('set-name', name);
+                showScreen(lobbyScreen);
+            }
+        });
+
+        readyBtn.addEventListener('click', () => {
+            socket.emit('toggle-ready');
+        });
+
+        modeToggleBtn.addEventListener('click', () => {
+            socket.emit('toggle-gamemode');
+        });
+
+        socket.on('update-gamemode', (mode) => {
+            if (mode === 'math') {
+                gamemodeDisplay.textContent = 'Matematika (+ / -)';
+            } else {
+                gamemodeDisplay.textContent = 'Filmy a seriály';
+            }
+        });
+
+        socket.on('update-players', (players) => {
+            playerList.innerHTML = '';
+            players.forEach(p => {
+                const li = document.createElement('li');
+                li.textContent = `${p.name} - ${p.ready ? '✅ Připraven' : '❌ Nepřipraven'}`;
+                playerList.appendChild(li);
+            });
+        });
+
+        socket.on('start-countdown', (count) => {
+            showScreen(countdownScreen);
+            countdownNumber.textContent = count;
+        });
+
+        socket.on('new-question', (data) => {
+            showScreen(gameScreen);
+            roundIndicator.textContent = `Kolo ${data.round} z ${data.total}`;
+            questionPrompt.textContent = data.question;
+            waitingMsg.style.display = 'none';
+            optionsContainer.style.display = 'block';
+
+            timerBar.style.transition = 'none';
+            timerBar.style.width = '100%';
+            setTimeout(() => {
+                timerBar.style.transition = `width ${data.timeLimit}s linear`;
+                timerBar.style.width = '0%';
+            }, 50);
+
+            questionStartTime = Date.now();
+
+            optionsContainer.innerHTML = '';
+            data.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.textContent = opt;
+                btn.className = 'option-btn';
+                btn.onclick = () => {
+                    const timeTaken = (Date.now() - questionStartTime) / 1000;
+                    socket.emit('submit-answer', { answer: opt, timeTaken: timeTaken });
+                    
+                    optionsContainer.querySelectorAll('button').forEach(b => b.disabled = true);
+                    waitingMsg.style.display = 'block';
+                };
+                optionsContainer.appendChild(btn);
+            });
+        });
+
+        socket.on('game-over', ({ initialList, targetList }) => {
+            showScreen(resultsScreen);
+            playAgainBtn.style.display = 'none';
+            resultsList.innerHTML = '';
+
+            let cardElements = {};
+            initialList.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'score-card';
+                card.dataset.id = p.id;
+                card.innerHTML = `
+                    <span class="player-name" style="font-weight: bold;">${p.name}</span>
+                    <div>
+                        <span class="gained-points" id="gain-${p.id}"></span>
+                        <strong class="player-score" id="score-${p.id}">0</strong> bodů
+                    </div>
+                `;
+                resultsList.appendChild(card);
+                cardElements[p.id] = card;
+            });
+
+            updateCardPositions(cardElements, targetList);
+
+            let revealIndex = 0;
+
+            function revealNextPlayer() {
+                if (revealIndex >= targetList.length) {
+                    playAgainBtn.style.display = 'inline-block';
+                    return;
+                }
+
+                const targetData = targetList[revealIndex];
+                const card = cardElements[targetData.id];
+                const scoreElem = document.getElementById(`score-${targetData.id}`);
+                const gainElem = document.getElementById(`gain-${targetData.id}`);
+
+                card.classList.add('highlight');
+                let finalTargetScore = targetData.finalScore;
+                
+                gainElem.textContent = `+${finalTargetScore}`;
+                gainElem.classList.add('show');
+
+                let currentAnimatedScore = 0;
+                let duration = 1200; 
+                let startTime = null;
+
+                function step(timestamp) {
+                    if (!startTime) startTime = timestamp;
+                    let progress = Math.min((timestamp - startTime) / duration, 1);
+                    currentAnimatedScore = Math.floor(progress * finalTargetScore);
+                    scoreElem.textContent = currentAnimatedScore;
+
+                    updateCardPositions(cardElements, targetList);
+
+                    if (progress < 1) {
+                        requestAnimationFrame(step);
+                    } else {
+                        scoreElem.textContent = finalTargetScore;
+                        updateCardPositions(cardElements, targetList);
+                        card.classList.remove('highlight');
+                        gainElem.classList.remove('show');
+
+                        revealIndex++;
+                        setTimeout(revealNextPlayer, 600);
+                    }
+                }
+
+                requestAnimationFrame(step);
+            }
+
+            setTimeout(revealNextPlayer, 800);
+        });
+
+        function updateCardPositions(cardElements, targetList) {
+            let sortedIds = Object.keys(cardElements).sort((a, b) => {
+                let scoreA = parseInt(document.getElementById(`score-${a}`).textContent) || 0;
+                let scoreB = parseInt(document.getElementById(`score-${b}`).textContent) || 0;
+                if (scoreB !== scoreA) return scoreB - scoreA;
+                
+                let nameA = targetList.find(p => p.id === a).name;
+                let nameB = targetList.find(p => p.id === b).name;
+                return nameA.localeCompare(nameB);
+            });
+
+            const rowHeight = 72; 
+            
+            sortedIds.forEach((id, newIndex) => {
+                let card = cardElements[id];
+                card.style.transform = `translateY(${newIndex * rowHeight}px)`;
+                card.style.zIndex = sortedIds.length - newIndex;
+            });
+            
+            resultsList.style.height = `${sortedIds.length * rowHeight}px`;
+        }
+    </script>
+</body>
+</html>

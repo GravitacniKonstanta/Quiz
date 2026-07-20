@@ -121,6 +121,9 @@
         <h2>Čekárna</h2>
         <p>Herní režim: <strong id="gamemode-display" style="color: #2e7d32;">Matematika (+ / -)</strong></p>
         <button id="mode-toggle-btn" style="background-color: #ff9800;">Přepnout režim</button>
+        
+        <p style="margin-top: 15px;">Počet možností: <strong id="optioncount-display" style="color: #2e7d32;">4 možnosti</strong></p>
+        <button id="optioncount-toggle-btn" style="background-color: #2196F3;">Přepnout počet možností</button>
         <br><br>
         <p>Připojení hráči:</p>
         <ul id="player-list"></ul>
@@ -148,9 +151,6 @@
     <div id="results-screen" class="screen">
         <h2>Konec hry! Odhalení skóre</h2>
         <div id="results-list"></div>
-        <div style="margin-top: 50px;">
-            <button id="play-again-btn" style="display:none;" onclick="location.reload()">Hrát znovu</button>
-        </div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
@@ -168,14 +168,15 @@
         const playerList = document.getElementById('player-list');
         const readyBtn = document.getElementById('ready-btn');
         const modeToggleBtn = document.getElementById('mode-toggle-btn');
+        const optionCountToggleBtn = document.getElementById('optioncount-toggle-btn');
         const gamemodeDisplay = document.getElementById('gamemode-display');
+        const optionCountDisplay = document.getElementById('optioncount-display');
         const countdownNumber = document.getElementById('countdown-number');
         const roundIndicator = document.getElementById('round-indicator');
         const questionPrompt = document.getElementById('question-prompt');
         const optionsContainer = document.getElementById('options-container');
         const waitingMsg = document.getElementById('waiting-msg');
         const resultsList = document.getElementById('results-list');
-        const playAgainBtn = document.getElementById('play-again-btn');
         const timerBar = document.getElementById('timer-bar');
 
         let questionStartTime = 0;
@@ -201,12 +202,17 @@
             socket.emit('toggle-gamemode');
         });
 
-        socket.on('update-gamemode', (mode) => {
-            if (mode === 'math') {
+        optionCountToggleBtn.addEventListener('click', () => {
+            socket.emit('toggle-option-count');
+        });
+
+        socket.on('update-settings', (settings) => {
+            if (settings.mode === 'math') {
                 gamemodeDisplay.textContent = 'Matematika (+ / -)';
             } else {
                 gamemodeDisplay.textContent = 'Filmy a seriály';
             }
+            optionCountDisplay.textContent = `${settings.optionCount} možnosti`;
         });
 
         socket.on('update-players', (players) => {
@@ -257,7 +263,6 @@
 
         socket.on('game-over', ({ initialList, targetList }) => {
             showScreen(resultsScreen);
-            playAgainBtn.style.display = 'none';
             resultsList.innerHTML = '';
 
             let cardElements = {};
@@ -282,7 +287,6 @@
 
             function revealNextPlayer() {
                 if (revealIndex >= targetList.length) {
-                    playAgainBtn.style.display = 'inline-block';
                     return;
                 }
 
@@ -326,6 +330,10 @@
             }
 
             setTimeout(revealNextPlayer, 800);
+        });
+
+        socket.on('return-to-lobby', () => {
+            showScreen(lobbyScreen);
         });
 
         function updateCardPositions(cardElements, targetList) {

@@ -27,7 +27,11 @@ const MOVIE_QUESTIONS = [
     { prompt: "Medvídek _____", correct: "Peddington" },
     { prompt: "Maxipes _____", correct: "Fík" },
     { prompt: "Jája a _____", correct: "Pája" },
-    { prompt: "Francimor a _____", correct: "Edudant" }
+    { prompt: "Francimor a _____", correct: "Edudant" },
+    { prompt: "Bob a  _____", correct: "Bobek" },
+    { prompt: "Princezna _____ (Sofie)", correct: "Sofie" },
+    { prompt: "Na _____ (Vlásku)", correct: "Vlásku" },
+    { prompt: "Princezna _____ první", correct: "Koloběžka" }
 ];
 
 io.on('connection', (socket) => {
@@ -42,7 +46,6 @@ io.on('connection', (socket) => {
             hasAnswered: false,
             roundPointsEarned: 0
         };
-        // Send current settings to the newly connected player
         socket.emit('update-settings', { mode: currentGameMode, optionCount: optionCountSetting });
         io.emit('update-players', Object.values(players));
     });

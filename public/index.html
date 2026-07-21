@@ -2,61 +2,74 @@
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Multiplayer Kvíz</title>
     <style>
         body { 
             font-family: Arial, sans-serif; 
             text-align: center; 
-            margin-top: 60px; 
+            margin: 0;
+            padding: 20px 10px;
             background: #f4f4f9; 
+            box-sizing: border-box;
         }
-        .screen { display: none; }
+        .screen { display: none; max-width: 500px; margin: 0 auto; }
         .active { display: block; }
 
         input[type="text"] {
-            padding: 14px 20px;
+            padding: 14px 16px;
             font-size: 20px;
-            width: 320px;
+            width: 100%;
+            max-width: 320px;
             border: 2px solid #ccc;
             border-radius: 8px;
             outline: none;
+            box-sizing: border-box;
         }
         input[type="text"]:focus {
             border-color: #4caf50;
         }
         button { 
-            padding: 14px 28px; 
+            padding: 16px 24px; 
             font-size: 18px; 
             font-weight: bold;
             cursor: pointer; 
-            margin: 8px; 
+            margin: 8px 0; 
             border-radius: 8px;
             border: none;
             background-color: #4caf50;
             color: white;
             transition: background 0.2s;
+            width: 100%;
+            max-width: 320px;
         }
         button:hover {
             background-color: #45a049;
         }
         .option-btn { 
             display: block; 
-            width: 320px; 
-            margin: 14px auto; 
-            font-size: 22px; 
-            padding: 16px;
+            width: 100%; 
+            max-width: 360px;
+            margin: 12px auto; 
+            font-size: 20px; 
+            padding: 18px;
+            box-sizing: border-box;
         }
         
-        h2 { font-size: 32px; }
-        h3 { font-size: 24px; }
+        h2 { font-size: 28px; margin-bottom: 10px; }
+        h3 { font-size: 22px; }
         p { font-size: 18px; }
-        ul { list-style-type: none; padding: 0; }
-        li { font-size: 18px; margin: 8px 0; }
+        ul { list-style-type: none; padding: 0; margin: 15px 0; }
+        li { font-size: 18px; margin: 8px 0; background: white; padding: 10px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
+        #results-screen {
+            max-width: 480px;
+            width: 100%;
+        }
         #results-list {
             position: relative;
-            width: 480px;
-            margin: 30px auto;
+            width: 100%;
+            margin: 20px auto;
             text-align: left;
         }
         .score-card {
@@ -70,11 +83,11 @@
             justify-content: space-between;
             align-items: center;
             background: white;
-            padding: 18px 25px;
+            padding: 16px 20px;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             transition: transform 0.6s ease, background-color 0.3s ease;
-            font-size: 20px;
+            font-size: 18px;
         }
         .score-card.highlight {
             background-color: #fff9c4;
@@ -84,25 +97,33 @@
             font-weight: bold;
             opacity: 0;
             transition: opacity 0.3s ease;
-            margin-right: 12px;
+            margin-right: 8px;
         }
         .gained-points.show {
             opacity: 1;
         }
         
         #timer-bar-container {
-            width: 450px;
+            width: 100%;
+            max-width: 450px;
             height: 16px;
             background: #ddd;
             margin: 20px auto;
             border-radius: 8px;
             overflow: hidden;
+            box-sizing: border-box;
         }
         #timer-bar {
             width: 100%;
             height: 100%;
             background: #4caf50;
             transition: width 1s linear;
+        }
+
+        #question-prompt {
+            font-size: 38px; 
+            margin: 25px 0;
+            word-break: break-word;
         }
     </style>
 </head>
@@ -119,10 +140,10 @@
     <!-- Lobby Screen -->
     <div id="lobby-screen" class="screen">
         <h2>Čekárna</h2>
-        <p>Herní režim: <strong id="gamemode-display" style="color: #2e7d32;">Matematika (+ / -)</strong></p>
+        <p>Herní režim: <br><strong id="gamemode-display" style="color: #2e7d32;">Matematika (1 - 99)</strong></p>
         <button id="mode-toggle-btn" style="background-color: #ff9800;">Přepnout režim</button>
         
-        <p style="margin-top: 15px;">Počet možností: <strong id="optioncount-display" style="color: #2e7d32;">4 možnosti</strong></p>
+        <p style="margin-top: 15px;">Počet možností: <br><strong id="optioncount-display" style="color: #2e7d32;">4 možnosti</strong></p>
         <button id="optioncount-toggle-btn" style="background-color: #2196F3;">Přepnout počet možností</button>
         <br><br>
         <p>Připojení hráči:</p>
@@ -133,16 +154,16 @@
 
     <!-- Countdown Screen -->
     <div id="countdown-screen" class="screen">
-        <h1 id="countdown-number" style="font-size: 120px; margin-top: 100px; color: #333;">3</h1>
+        <h1 id="countdown-number" style="font-size: 100px; margin-top: 80px; color: #333;">3</h1>
     </div>
 
     <!-- Game Screen -->
-    <div id="game-screen" class="screen">
+    <div id="game-screen" class="screen" style="max-width: 600px;">
         <h3 id="round-indicator"></h3>
         <div id="timer-bar-container">
             <div id="timer-bar"></div>
         </div>
-        <h1 id="question-prompt" style="font-size: 50px; margin: 30px 0;"></h1>
+        <h1 id="question-prompt"></h1>
         <div id="options-container"></div>
         <p id="waiting-msg" style="color: #666; font-style: italic; display: none; margin-top: 20px;">Odpověď odeslána! Čekání na ostatní hráče...</p>
     </div>
@@ -224,6 +245,18 @@
                 li.textContent = `${p.name} - ${p.ready ? '✅ Připraven' : '❌ Nepřipraven'}`;
                 playerList.appendChild(li);
             });
+            
+            // Sync local button text appearance depending on player's own ready state
+            const me = players.find(p => p.id === socket.id);
+            if (me) {
+                if (me.ready) {
+                    readyBtn.textContent = 'Zrušit připravenost';
+                    readyBtn.style.backgroundColor = '#d32f2f';
+                } else {
+                    readyBtn.textContent = 'Připraven';
+                    readyBtn.style.backgroundColor = '#4caf50';
+                }
+            }
         });
 
         socket.on('start-countdown', (count) => {
@@ -334,8 +367,11 @@
             setTimeout(revealNextPlayer, 800);
         });
 
-        socket.on('return-to-lobby', () => {
+        socket.on('return-to-lobby', (players) => {
             showScreen(lobbyScreen);
+            // Reset local ready button style visually upon returning
+            readyBtn.textContent = 'Připraven';
+            readyBtn.style.backgroundColor = '#4caf50';
         });
 
         function updateCardPositions(cardElements, targetList) {
@@ -349,7 +385,7 @@
                 return nameA.localeCompare(nameB);
             });
 
-            const rowHeight = 72; 
+            const rowHeight = 70; 
             
             sortedIds.forEach((id, newIndex) => {
                 let card = cardElements[id];

@@ -39,8 +39,16 @@ const MOVIE_QUESTIONS = [
     { prompt: "Kosí _____", correct: "Bratři" },
     { prompt: "Pat a _____", correct: "Mat" },
     { prompt: "Káťa a _____", correct: "Škubánek" },
+    { prompt: "Mach a _____", correct: "Šebestová" },
+    { prompt: "Křemílek a _____", correct: "Vochomůrka" },
+    { prompt: "Létající _____", correct: "Čestmír" },
+    { prompt: "Princezna se _____", correct: "zlatou hvězdou" },
+    { prompt: "Štaflík a _____", correct: "Špagetka" },
+    { prompt: "Kocour _____", correct: "v botách" },
+    { prompt: "Ať žijí _____", correct: "duchové" },
     { prompt: "Včelí _____", correct: "Medvídci" }
 ];
+
 
 io.on('connection', (socket) => {
     console.log(`User connected: ${socket.id}`);
@@ -306,7 +314,9 @@ function endGame() {
 
     setTimeout(() => {
         resetGame();
-        io.emit('return-to-lobby', Object.values(players));
+        // Broadcast the reset players list so everyone's UI instantly shows ❌ Nepřipraven
+        io.emit('update-players', Object.values(players));
+        io.emit('return-to-lobby');
     }, totalRevealDuration);
 }
 

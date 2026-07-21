@@ -46,6 +46,8 @@ const MOVIE_QUESTIONS = [
     { prompt: "Štaflík a _____", correct: "Špagetka" },
     { prompt: "Kocour _____", correct: "v botách" },
     { prompt: "Ať žijí _____", correct: "duchové" },
+    { prompt: "Mašinka _____", correct: "Tomáš" },
+    { prompt: "Gumítci _____", correct: "méďové" },
     { prompt: "Včelí _____", correct: "Medvídci" }
 ];
 

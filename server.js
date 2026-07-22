@@ -516,7 +516,7 @@ function sendQuestion() {
                         p.roundPointsEarned = 0;
                     }
                 });
-                nextRound();
+                triggerRevealPhase();
             }
         }, 1000);
     } else {
@@ -527,8 +527,18 @@ function sendQuestion() {
 function checkAllAnswered() {
     if (Object.values(players).every(p => p.hasAnswered)) {
         if (questionTimer) clearInterval(questionTimer);
-        nextRound();
+        triggerRevealPhase();
     }
+}
+
+function triggerRevealPhase() {
+    const currentQ = questions[currentRound];
+    // Tell clients to highlight correct/wrong answers and pause for 1.5 seconds
+    io.emit('reveal-answer', { correct: currentQ.correct });
+
+    setTimeout(() => {
+        nextRound();
+    }, 1500);
 }
 
 function nextRound() {

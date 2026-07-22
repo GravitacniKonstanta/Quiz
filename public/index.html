@@ -55,6 +55,14 @@
             padding: 18px;
             box-sizing: border-box;
         }
+        .option-btn.correct {
+            background-color: #2e7d32 !important;
+            color: white !important;
+        }
+        .option-btn.wrong {
+            background-color: #d32f2f !important;
+            color: white !important;
+        }
         
         h2 { font-size: 28px; margin-bottom: 10px; }
         h3 { font-size: 22px; }
@@ -201,6 +209,7 @@
         const timerBar = document.getElementById('timer-bar');
 
         let questionStartTime = 0;
+        let selectedAnswer = null;
 
         function showScreen(screen) {
             [nameScreen, lobbyScreen, countdownScreen, gameScreen, resultsScreen].forEach(s => s.classList.remove('active'));
@@ -271,6 +280,7 @@
             questionPrompt.textContent = data.question;
             waitingMsg.style.display = 'none';
             optionsContainer.style.display = 'block';
+            selectedAnswer = null;
 
             timerBar.style.transition = 'none';
             timerBar.style.width = '100%';
@@ -287,6 +297,7 @@
                 btn.textContent = opt;
                 btn.className = 'option-btn';
                 btn.onclick = () => {
+                    selectedAnswer = opt;
                     const timeTaken = (Date.now() - questionStartTime) / 1000;
                     socket.emit('submit-answer', { answer: opt, timeTaken: timeTaken });
                     
@@ -294,6 +305,23 @@
                     waitingMsg.style.display = 'block';
                 };
                 optionsContainer.appendChild(btn);
+            });
+        });
+
+        socket.on('reveal-answer', ({ correct }) => {
+            // Stop timer transition
+            timerBar.style.transition = 'none';
+            waitingMsg.style.display = 'none';
+
+            // Highlight buttons
+            const buttons = optionsContainer.querySelectorAll('button');
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                if (btn.textContent == correct) {
+                    btn.classList.add('correct');
+                } else if (btn.textContent == selectedAnswer) {
+                    btn.classList.add('wrong');
+                }
             });
         });
 

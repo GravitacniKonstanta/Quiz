@@ -15,7 +15,7 @@ const TOTAL_ROUNDS = 5;
 let questions = [];
 let questionTimer = null;
 const QUESTION_TIME_LIMIT = 10; // seconds
-let currentGameMode = 'math'; // 'math', 'easy-math', or 'movies'
+let currentGameMode = 'math'; // 'math', 'easy-math', 'movies', or 'capitals'
 let optionCountSetting = 4; // 2 or 4 options per question
 
 const MOVIE_QUESTIONS = [
@@ -62,6 +62,213 @@ const MOVIE_QUESTIONS = [
     { prompt: "Včelí _____", correct: "Medvídci" }
 ];
 
+const CAPITAL_QUESTIONS = [
+    // Evropa
+    { prompt: "Albánie", correct: "Tirana" },
+    { prompt: "Andorra", correct: "Andorra la Vella" },
+    { prompt: "Belgie", correct: "Brusel" },
+    { prompt: "Bělorusko", correct: "Minsk" },
+    { prompt: "Bosna a Hercegovina", correct: "Sarajevo" },
+    { prompt: "Bulharsko", correct: "Sofie" },
+    { prompt: "Černá Hora", correct: "Podgorica" },
+    { prompt: "Česko", correct: "Praha" },
+    { prompt: "Dánsko", correct: "Kodaň" },
+    { prompt: "Estonsko", correct: "Tallinn" },
+    { prompt: "Finsko", correct: "Helsinky" },
+    { prompt: "Francie", correct: "Paříž" },
+    { prompt: "Chorvatsko", correct: "Záhřeb" },
+    { prompt: "Irsko", correct: "Dublin" },
+    { prompt: "Island", correct: "Reykjavík" },
+    { prompt: "Itálie", correct: "Řím" },
+    { prompt: "Kosovo", correct: "Priština" },
+    { prompt: "Lichtenštejnsko", correct: "Vaduz" },
+    { prompt: "Litva", correct: "Vilnius" },
+    { prompt: "Lotyšsko", correct: "Riga" },
+    { prompt: "Lucembursko", correct: "Lucemburk" },
+    { prompt: "Maďarsko", correct: "Budapešť" },
+    { prompt: "Severní Makedonie", correct: "Skopje" },
+    { prompt: "Malta", correct: "Valletta" },
+    { prompt: "Moldavsko", correct: "Kišiněv" },
+    { prompt: "Monako", correct: "Monako" },
+    { prompt: "Německo", correct: "Berlín" },
+    { prompt: "Nizozemsko", correct: "Amsterdam" },
+    { prompt: "Norsko", correct: "Oslo" },
+    { prompt: "Polsko", correct: "Varšava" },
+    { prompt: "Portugalsko", correct: "Lisabon" },
+    { prompt: "Rakousko", correct: "Vídeň" },
+    { prompt: "Rumunsko", correct: "Bukurešť" },
+    { prompt: "Rusko", correct: "Moskva" },
+    { prompt: "Řecko", correct: "Atény" },
+    { prompt: "San Marino", correct: "San Marino" },
+    { prompt: "Slovensko", correct: "Bratislava" },
+    { prompt: "Slovinsko", correct: "Lublaň" },
+    { prompt: "Spojené království", correct: "Londýn" },
+    { prompt: "Srbsko", correct: "Bělehrad" },
+    { prompt: "Španělsko", correct: "Madrid" },
+    { prompt: "Švédsko", correct: "Stockholm" },
+    { prompt: "Švýcarsko", correct: "Bern" },
+    { prompt: "Ukrajina", correct: "Kyjev" },
+    { prompt: "Vatikán", correct: "Vatikán" },
+
+    // Asie
+    { prompt: "Afghánistán", correct: "Kábul" },
+    { prompt: "Arménie", correct: "Jerevan" },
+    { prompt: "Ázerbájdžán", correct: "Baku" },
+    { prompt: "Bahrajn", correct: "Manáma" },
+    { prompt: "Bangladéš", correct: "Dháka" },
+    { prompt: "Bhútán", correct: "Thimphu" },
+    { prompt: "Brunej", correct: "Bandar Seri Begawan" },
+    { prompt: "Čína", correct: "Peking" },
+    { prompt: "Filipíny", correct: "Manila" },
+    { prompt: "Gruzie", correct: "Tbilisi" },
+    { prompt: "Indie", correct: "Nové Dillí" },
+    { prompt: "Indonésie", correct: "Nusantara" },
+    { prompt: "Irák", correct: "Bagdád" },
+    { prompt: "Írán", correct: "Teherán" },
+    { prompt: "Izrael", correct: "Jeruzalém" },
+    { prompt: "Japonsko", correct: "Tokio" },
+    { prompt: "Jemen", correct: "San'á" },
+    { prompt: "Jordánsko", correct: "Ammán" },
+    { prompt: "Kambodža", correct: "Phnompenh" },
+    { prompt: "Katar", correct: "Dauhá" },
+    { prompt: "Kazachstán", correct: "Astana" },
+    { prompt: "Kuvajt", correct: "Kuvajt" },
+    { prompt: "Kyrgyzstán", correct: "Biškek" },
+    { prompt: "Laos", correct: "Vientiane" },
+    { prompt: "Libanon", correct: "Bejrút" },
+    { prompt: "Malajsie", correct: "Kuala Lumpur" },
+    { prompt: "Maledivy", correct: "Male" },
+    { prompt: "Mongolsko", correct: "Ulánbátar" },
+    { prompt: "Myanmar", correct: "Napyidaw" },
+    { prompt: "Nepál", correct: "Káthmándú" },
+    { prompt: "Omán", correct: "Maskat" },
+    { prompt: "Pákistán", correct: "Islámábád" },
+    { prompt: "Saúdská Arábie", correct: "Rijád" },
+    { prompt: "Singapur", correct: "Singapur" },
+    { prompt: "Severní Korea", correct: "Pchjongjang" },
+    { prompt: "Jižní Korea", correct: "Soul" },
+    { prompt: "Spojené arabské emiráty", correct: "Abú Zabí" },
+    { prompt: "Srí Lanka", correct: "Kolombo" },
+    { prompt: "Sýrie", correct: "Damšek" },
+    { prompt: "Tádžikistán", correct: "Dušanbe" },
+    { prompt: "Thajsko", correct: "Bangkok" },
+    { prompt: "Turecko", correct: "Ankara" },
+    { prompt: "Turkmenistán", correct: "Ašchabad" },
+    { prompt: "Uzbekistán", correct: "Taškent" },
+    { prompt: "Vietnam", correct: "Hanoj" },
+    { prompt: "Východní Timor", correct: "Dili" },
+
+    // Afrika
+    { prompt: "Alžírsko", correct: "Alžír" },
+    { prompt: "Angola", correct: "Luanda" },
+    { prompt: "Benin", correct: "Porto-Novo" },
+    { prompt: "Botswana", correct: "Gaborone" },
+    { prompt: "Burkina Faso", correct: "Ouagadougou" },
+    { prompt: "Burundi", correct: "Gitega" },
+    { prompt: "Čad", correct: "N'Djamena" },
+    { prompt: "Džibutsko", correct: "Džibuti" },
+    { prompt: "Egypt", correct: "Káhira" },
+    { prompt: "Eritrea", correct: "Asmara" },
+    { prompt: "Eswatini", correct: "Mbabane" },
+    { prompt: "Etiopie", correct: "Addis Abeba" },
+    { prompt: "Gabon", correct: "Libreville" },
+    { prompt: "Gambie", correct: "Banjul" },
+    { prompt: "Ghana", correct: "Accra" },
+    { prompt: "Guinea", correct: "Konakry" },
+    { prompt: "Guinea-Bissau", correct: "Bissau" },
+    { prompt: "Jihoafrická republika", correct: "Pretorie" },
+    { prompt: "Jižní Súdán", correct: "Džuba" },
+    { prompt: "Kamerun", correct: "Yaoundé" },
+    { prompt: "Kapverdy", correct: "Praia" },
+    { prompt: "Keňa", correct: "Nairobi" },
+    { prompt: "Komory", correct: "Moroni" },
+    { prompt: "Kongo", correct: "Brazzaville" },
+    { prompt: "Demokratická republika Kongo", correct: "Kinshasa" },
+    { prompt: "Lesotho", correct: "Maseru" },
+    { prompt: "Libérie", correct: "Monrovia" },
+    { prompt: "Libye", correct: "Tripolis" },
+    { prompt: "Madagaskar", correct: "Antananarivo" },
+    { prompt: "Malawi", correct: "Lilongwe" },
+    { prompt: "Mali", correct: "Bamako" },
+    { prompt: "Maroko", correct: "Rabat" },
+    { prompt: "Mauricius", correct: "Port Louis" },
+    { prompt: "Mauritánie", correct: "Nuakšott" },
+    { prompt: "Mozambik", correct: "Maputo" },
+    { prompt: "Namibie", correct: "Windhoek" },
+    { prompt: "Niger", correct: "Niamey" },
+    { prompt: "Nigérie", correct: "Abuja" },
+    { prompt: "Pobřeží slonoviny", correct: "Yamoussoukro" },
+    { prompt: "Rovníková Guinea", correct: "Malabo" },
+    { prompt: "Rwanda", correct: "Kigali" },
+    { prompt: "Senegal", correct: "Dakar" },
+    { prompt: "Seychely", correct: "Victoria" },
+    { prompt: "Sierra Leone", correct: "Freetown" },
+    { prompt: "Somálsko", correct: "Mogadišo" },
+    { prompt: "Středoafrická republika", correct: "Bangui" },
+    { prompt: "Súdán", correct: "Chartúm" },
+    { prompt: "Svatý Tomáš a Princův ostrov", correct: "Svatý Tomáš" },
+    { prompt: "Tanzanie", correct: "Dodoma" },
+    { prompt: "Togo", correct: "Lomé" },
+    { prompt: "Tunisko", correct: "Tunis" },
+    { prompt: "Uganda", correct: "Kampala" },
+    { prompt: "Zambie", correct: "Lusaka" },
+    { prompt: "Zimbabwe", correct: "Harare" },
+
+    // Severní a Střední Amerika
+    { prompt: "Antigua a Barbuda", correct: "St. John's" },
+    { prompt: "Bahamy", correct: "Nassau" },
+    { prompt: "Barbados", correct: "Bridgetown" },
+    { prompt: "Belize", correct: "Belmopan" },
+    { prompt: "Dominika", correct: "Roseau" },
+    { prompt: "Dominikánská republika", correct: "Santo Domingo" },
+    { prompt: "Grenada", correct: "St. George's" },
+    { prompt: "Guatemala", correct: "Guatemala" },
+    { prompt: "Haiti", correct: "Port-au-Prince" },
+    { prompt: "Honduras", correct: "Tegucigalpa" },
+    { prompt: "Jamajka", correct: "Kingston" },
+    { prompt: "Kanada", correct: "Ottawa" },
+    { prompt: "Kostarika", correct: "San José" },
+    { prompt: "Kuba", correct: "Havana" },
+    { prompt: "Mexiko", correct: "Ciudad de México" },
+    { prompt: "Nikaragua", correct: "Managua" },
+    { prompt: "Panama", correct: "Panama" },
+    { prompt: "Salvador", correct: "San Salvador" },
+    { prompt: "Spojené státy americké", correct: "Washington, D.C." },
+    { prompt: "Svatá Lucie", correct: "Castries" },
+    { prompt: "Svatý Kryštof a Nevis", correct: "Basseterre" },
+    { prompt: "Svatý Vincenc a Grenadiny", correct: "Kingstown" },
+    { prompt: "Trinidad a Tobago", correct: "Port of Spain" },
+
+    // Jižní Amerika
+    { prompt: "Argentina", correct: "Buenos Aires" },
+    { prompt: "Bolívie", correct: "Sucre" },
+    { prompt: "Brazílie", correct: "Brasília" },
+    { prompt: "Ekvádor", correct: "Quito" },
+    { prompt: "Guyana", correct: "Georgetown" },
+    { prompt: "Chile", correct: "Santiago de Chile" },
+    { prompt: "Kolumbie", correct: "Bogotá" },
+    { prompt: "Paraguay", correct: "Asunción" },
+    { prompt: "Peru", correct: "Lima" },
+    { prompt: "Surinam", correct: "Paramaribo" },
+    { prompt: "Uruguay", correct: "Montevideo" },
+    { prompt: "Venezuela", correct: "Caracas" },
+
+    // Austrálie a Oceánie
+    { prompt: "Austrálie", correct: "Canberra" },
+    { prompt: "Fidži", correct: "Suva" },
+    { prompt: "Kiribati", correct: "Jižní Tarawa" },
+    { prompt: "Marshallovy ostrovy", correct: "Majuro" },
+    { prompt: "Mikronésie", correct: "Palikir" },
+    { prompt: "Nauru", correct: "Yaren" },
+    { prompt: "Nový Zéland", correct: "Wellington" },
+    { prompt: "Palau", correct: "Ngerulmud" },
+    { prompt: "Papua-Nová Guinea", correct: "Port Moresby" },
+    { prompt: "Samoa", correct: "Apia" },
+    { prompt: "Šalamounovy ostrovy", correct: "Honiara" },
+    { prompt: "Tonga", correct: "Nuku'alofa" },
+    { prompt: "Tuvalu", correct: "Funafuti" },
+    { prompt: "Vanuatu", correct: "Port Vila" }
+];
 
 io.on('connection', (socket) => {
     console.log(`User connected: ${socket.id}`);
@@ -93,6 +300,8 @@ io.on('connection', (socket) => {
                 currentGameMode = 'easy-math';
             } else if (currentGameMode === 'easy-math') {
                 currentGameMode = 'movies';
+            } else if (currentGameMode === 'movies') {
+                currentGameMode = 'capitals';
             } else {
                 currentGameMode = 'math';
             }
@@ -193,8 +402,8 @@ function generateQuestions() {
         }
     } else if (currentGameMode === 'easy-math') {
         for (let i = 0; i < TOTAL_ROUNDS; i++) {
-            let num1 = Math.floor(Math.random() * 11); // 0 to 10
-            let num2 = Math.floor(Math.random() * 11); // 0 to 10
+            let num1 = Math.floor(Math.random() * 11);
+            let num2 = Math.floor(Math.random() * 11);
             let op = Math.random() < 0.5 ? '+' : '-';
 
             if (op === '-' && num1 < num2) {
@@ -207,7 +416,7 @@ function generateQuestions() {
             
             let options = new Set([correct]);
             while (options.size < optionCountSetting) {
-                let offset = Math.floor(Math.random() * 11) - 5; // +- 5
+                let offset = Math.floor(Math.random() * 11) - 5;
                 let wrong = correct + offset;
                 if (wrong >= 0 && wrong !== correct) {
                     options.add(wrong);
@@ -220,7 +429,7 @@ function generateQuestions() {
                 options: Array.from(options).sort(() => Math.random() - 0.5)
             });
         }
-    } else {
+    } else if (currentGameMode === 'movies') {
         let shuffledPool = [...MOVIE_QUESTIONS].sort(() => Math.random() - 0.5);
         let selectedPool = shuffledPool.slice(0, TOTAL_ROUNDS);
 
@@ -238,6 +447,28 @@ function generateQuestions() {
 
             questions.push({
                 prompt: item.prompt,
+                correct: correct,
+                options: Array.from(options).sort(() => Math.random() - 0.5)
+            });
+        });
+    } else if (currentGameMode === 'capitals') {
+        let shuffledPool = [...CAPITAL_QUESTIONS].sort(() => Math.random() - 0.5);
+        let selectedPool = shuffledPool.slice(0, TOTAL_ROUNDS);
+
+        selectedPool.forEach(item => {
+            let correct = item.correct;
+            let otherAnswers = CAPITAL_QUESTIONS.map(q => q.correct).filter(ans => ans !== correct);
+            otherAnswers.sort(() => Math.random() - 0.5);
+
+            let options = new Set([correct]);
+            for (let ans of otherAnswers) {
+                if (options.size < optionCountSetting) {
+                    options.add(ans);
+                }
+            }
+
+            questions.push({
+                prompt: `Hlavní město: ${item.prompt}`,
                 correct: correct,
                 options: Array.from(options).sort(() => Math.random() - 0.5)
             });
@@ -327,7 +558,6 @@ function endGame() {
 
     setTimeout(() => {
         resetGame();
-        // Broadcast the reset players list so everyone's UI instantly shows ❌ Nepřipraven
         io.emit('update-players', Object.values(players));
         io.emit('return-to-lobby');
     }, totalRevealDuration);

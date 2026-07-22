@@ -121,7 +121,7 @@
         }
 
         #question-prompt {
-            font-size: 38px; 
+            font-size: 32px; 
             margin: 25px 0;
             word-break: break-word;
         }
@@ -232,8 +232,10 @@
                 gamemodeDisplay.textContent = 'Matematika (1 - 99)';
             } else if (settings.mode === 'easy-math') {
                 gamemodeDisplay.textContent = 'Lehká matematika (0 - 10)';
-            } else {
+            } else if (settings.mode === 'movies') {
                 gamemodeDisplay.textContent = 'Filmy a seriály';
+            } else if (settings.mode === 'capitals') {
+                gamemodeDisplay.textContent = 'Hlavní města světa';
             }
             optionCountDisplay.textContent = `${settings.optionCount} možnosti`;
         });
@@ -246,7 +248,6 @@
                 playerList.appendChild(li);
             });
             
-            // Sync local button text appearance depending on player's own ready state
             const me = players.find(p => p.id === socket.id);
             if (me) {
                 if (me.ready) {
@@ -367,9 +368,8 @@
             setTimeout(revealNextPlayer, 800);
         });
 
-        socket.on('return-to-lobby', (players) => {
+        socket.on('return-to-lobby', () => {
             showScreen(lobbyScreen);
-            // Reset local ready button style visually upon returning
             readyBtn.textContent = 'Připraven';
             readyBtn.style.backgroundColor = '#4caf50';
         });

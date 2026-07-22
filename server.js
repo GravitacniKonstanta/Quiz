@@ -48,6 +48,17 @@ const MOVIE_QUESTIONS = [
     { prompt: "Ať žijí _____", correct: "duchové" },
     { prompt: "Mašinka _____", correct: "Tomáš" },
     { prompt: "Gumítci _____", correct: "méďové" },
+    { prompt: "101 _____", correct: "Dalmatínů" },
+    { prompt: "Gábin kouzelný _____", correct: "domek" },
+    { prompt: "Zootropolis _____", correct: "město zvířat" },
+    { prompt: "Červená _____", correct: "Karkuklka" },
+    { prompt: "Růžová _____", correct: "Kalkulka" },
+    { prompt: "Perníková _____", correct: "chaloupka" },
+    { prompt: "Dlouhý, široký a _____", correct: "bystrozraký" },
+    { prompt: "Pyšná _____", correct: "princezna" },
+    { prompt: "Děd _____", correct: "vševěd" },
+    { prompt: "Kačeří _____", correct: "příběhy" },
+    { prompt: "Mořská víla _____", correct: "Ariel" },
     { prompt: "Včelí _____", correct: "Medvídci" }
 ];
 
